@@ -1,0 +1,863 @@
+{
+  "entities": {
+    "School": {
+      "title": "School",
+      "description": "School profile starting with fixed ID sdn_pekiringan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "maxLength": 160 },
+        "npsn": { "type": "string", "maxLength": 32 },
+        "address": { "type": "string", "maxLength": 300 },
+        "logoUrl": { "type": "string", "maxLength": 1000 },
+        "academicYear": { "type": "string", "maxLength": 32 },
+        "activeSemester": { "type": "string", "enum": ["Ganjil", "Genap"] },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "isActive", "createdAt", "updatedAt"]
+    },
+    "UserAccount": {
+      "title": "UserAccount",
+      "description": "Authenticated Firebase Auth user account record linked to school and role",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "displayName": { "type": "string", "maxLength": 120 },
+        "role": { "type": "string", "enum": ["admin", "teacher"] },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "schoolId", "email", "displayName", "role", "isActive", "createdAt", "updatedAt"]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized system administrator account",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "displayName": { "type": "string", "maxLength": 120 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "displayName", "createdAt"]
+    },
+    "TeacherProfile": {
+      "title": "TeacherProfile",
+      "description": "Teacher profile authorized to author assessments and grade results",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "displayName": { "type": "string", "maxLength": 120 },
+        "schoolName": { "type": "string", "maxLength": 160 },
+        "role": { "type": "string", "enum": ["teacher", "admin"] },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "displayName", "role", "createdAt", "updatedAt"]
+    },
+    "ClassRoom": {
+      "title": "ClassRoom",
+      "description": "Class group within a school (e.g., 3A, 3B)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "maxLength": 24 },
+        "grade": { "type": "string", "maxLength": 16 },
+        "academicYear": { "type": "string", "maxLength": 32 },
+        "homeroomTeacher": { "type": "string", "maxLength": 120 },
+        "isActive": { "type": "boolean" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "name", "grade", "isActive", "ownerId", "createdAt", "updatedAt"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Modular subject and adventure world definition for a school",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 40, "pattern": "^[a-z0-9_]+$" },
+        "schoolId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "number": { "type": "number" },
+        "name": { "type": "string", "maxLength": 80 },
+        "worldName": { "type": "string", "maxLength": 120 },
+        "worldCode": { "type": "string", "maxLength": 32 },
+        "worldIcon": { "type": "string", "maxLength": 64 },
+        "worldColor": { "type": "string", "maxLength": 32 },
+        "description": { "type": "string", "maxLength": 600 },
+        "portalName": { "type": "string", "maxLength": 120 },
+        "isActive": { "type": "boolean" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "number", "name", "worldName", "isActive", "ownerId", "updatedAt"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Registered student entry in school roster (teacher/admin read only)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "classId": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 120 },
+        "gradeClass": { "type": "string", "maxLength": 24 },
+        "participantNumber": { "type": "string", "maxLength": 40 },
+        "studentNumber": { "type": "string", "maxLength": 40 },
+        "photoUrl": { "type": "string", "maxLength": 1000 },
+        "isActive": { "type": "boolean" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "classId", "name", "gradeClass", "isActive", "ownerId", "createdAt", "updatedAt"]
+    },
+    "StudentAccessKey": {
+      "title": "StudentAccessKey",
+      "description": "Hashed get-only lookup entry for verifying student identity without exposing full student roster",
+      "type": "object",
+      "properties": {
+        "lookupId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "classId": { "type": "string", "maxLength": 64 },
+        "requiresParticipantNumber": { "type": "boolean" },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 120 },
+        "isActive": { "type": "boolean" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["lookupId", "schoolId", "classId", "requiresParticipantNumber", "isActive", "ownerId", "updatedAt"]
+    },
+    "AppSetting": {
+      "title": "AppSetting",
+      "description": "Global application settings for SDN Pekiringan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "schoolName": { "type": "string", "maxLength": 160 },
+        "defaultIntroStory": { "type": "string", "maxLength": 2000 },
+        "defaultKkm": { "type": "number" },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "schoolName", "defaultIntroStory", "defaultKkm", "updatedAt"]
+    },
+    "Assessment": {
+      "title": "Assessment",
+      "description": "Teacher-managed assessment configuration across 10 Grade 3 worlds",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "classIds": { "type": "array" },
+        "code": { "type": "string", "maxLength": 32, "pattern": "^[A-Z0-9_\\-]+$" },
+        "codeHash": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 600 },
+        "academicYear": { "type": "string", "maxLength": 32 },
+        "subjectId": { "type": "string", "maxLength": 40, "pattern": "^[a-z0-9_]+$" },
+        "worldThemeId": { "type": "string", "maxLength": 40 },
+        "grade": { "type": "string", "maxLength": 16 },
+        "semester": { "type": "string", "enum": ["Ganjil", "Genap"] },
+        "date": { "type": "string", "maxLength": 32 },
+        "startsAt": { "type": "string", "maxLength": 64 },
+        "endsAt": { "type": "string", "maxLength": 64 },
+        "durationMinutes": { "type": "number" },
+        "maxAttempts": { "type": "number" },
+        "allowMultipleSessions": { "type": "boolean" },
+        "mode": { "type": "string", "enum": ["psas", "latihan", "simulasi"] },
+        "status": { "type": "string", "enum": ["draft", "scheduled", "active", "closed", "completed", "archived"] },
+        "isLocked": { "type": "boolean" },
+        "isVisibleOnMap": { "type": "boolean" },
+        "showScoreToStudent": { "type": "boolean" },
+        "introStory": { "type": "string", "maxLength": 2000 },
+        "totalQuestions": { "type": "number" },
+        "targetQuestionCount": { "type": "number" },
+        "checkpointInterval": { "type": "number" },
+        "kkm": { "type": "number" },
+        "navigationMode": { "type": "string", "enum": ["sequential", "free", "level", "checkpoint"] },
+        "allowBack": { "type": "boolean" },
+        "allowEditAfterAnswer": { "type": "boolean" },
+        "requireAnswerBeforeNext": { "type": "boolean" },
+        "shuffleQuestions": { "type": "boolean" },
+        "shuffleOptions": { "type": "boolean" },
+        "identityMode": { "type": "string", "enum": ["code_free", "roster_select", "roster_verify"] },
+        "audioEnabled": { "type": "boolean" },
+        "examType": { "type": "string", "enum": ["latihan", "ulangan_harian", "sumatif", "psas", "simulasi"] },
+        "scoringPolicy": { "type": "object" },
+        "resultPolicy": { "type": "object" },
+        "participantCount": { "type": "number" },
+        "archivedAt": { "type": "string", "maxLength": 64 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "code", "codeHash", "title", "subjectId", "mode", "status", "isLocked", "ownerId", "createdAt", "updatedAt"]
+    },
+    "AssessmentAccess": {
+      "title": "AssessmentAccess",
+      "description": "Hashed get-only lookup mapping SHA-256(schoolId:code) to assessment portal status without exposing plaintext codes",
+      "type": "object",
+      "properties": {
+        "codeHash": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "assessmentId": { "type": "string", "maxLength": 128 },
+        "subjectId": { "type": "string", "maxLength": 40 },
+        "classIds": { "type": "array" },
+        "status": { "type": "string", "enum": ["draft", "scheduled", "active", "closed", "completed", "archived"] },
+        "isLocked": { "type": "boolean" },
+        "startsAt": { "type": "string", "maxLength": 64 },
+        "endsAt": { "type": "string", "maxLength": 64 },
+        "maxAttempts": { "type": "number" },
+        "allowMultipleSessions": { "type": "boolean" },
+        "identityMode": { "type": "string", "enum": ["code_free", "roster_select", "roster_verify"] },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["codeHash", "schoolId", "assessmentId", "subjectId", "status", "isLocked", "ownerId", "updatedAt"]
+    },
+    "PublicAssessment": {
+      "title": "PublicAssessment",
+      "description": "Student-safe portal metadata for the 10 adventure worlds without plaintext exam codes or answer keys",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "classIds": { "type": "array" },
+        "title": { "type": "string", "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 600 },
+        "academicYear": { "type": "string", "maxLength": 32 },
+        "subjectId": { "type": "string", "maxLength": 40, "pattern": "^[a-z0-9_]+$" },
+        "worldThemeId": { "type": "string", "maxLength": 40 },
+        "grade": { "type": "string", "maxLength": 16 },
+        "semester": { "type": "string", "enum": ["Ganjil", "Genap"] },
+        "startsAt": { "type": "string", "maxLength": 64 },
+        "endsAt": { "type": "string", "maxLength": 64 },
+        "durationMinutes": { "type": "number" },
+        "maxAttempts": { "type": "number" },
+        "allowMultipleSessions": { "type": "boolean" },
+        "mode": { "type": "string", "enum": ["psas", "latihan", "simulasi"] },
+        "status": { "type": "string", "enum": ["draft", "scheduled", "active", "closed", "completed", "archived"] },
+        "isLocked": { "type": "boolean" },
+        "isVisibleOnMap": { "type": "boolean" },
+        "showScoreToStudent": { "type": "boolean" },
+        "introStory": { "type": "string", "maxLength": 2000 },
+        "totalQuestions": { "type": "number" },
+        "targetQuestionCount": { "type": "number" },
+        "checkpointInterval": { "type": "number" },
+        "navigationMode": { "type": "string", "enum": ["sequential", "free", "level", "checkpoint"] },
+        "allowBack": { "type": "boolean" },
+        "allowEditAfterAnswer": { "type": "boolean" },
+        "requireAnswerBeforeNext": { "type": "boolean" },
+        "shuffleQuestions": { "type": "boolean" },
+        "shuffleOptions": { "type": "boolean" },
+        "identityMode": { "type": "string", "enum": ["code_free", "roster_select", "roster_verify"] },
+        "audioEnabled": { "type": "boolean" },
+        "examType": { "type": "string", "enum": ["latihan", "ulangan_harian", "sumatif", "psas", "simulasi"] },
+        "scoringPolicy": { "type": "object" },
+        "resultPolicy": { "type": "object" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "title", "subjectId", "mode", "status", "isLocked", "isVisibleOnMap", "ownerId", "updatedAt"]
+    },
+    "Question": {
+      "title": "Question",
+      "description": "Teacher-only master question document linked to an assessment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "assessmentId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "subjectId": { "type": "string", "maxLength": 40 },
+        "order": { "type": "number" },
+        "type": { "type": "string", "enum": ["multiple_choice", "true_false", "short_answer", "matching", "ordering", "drag_drop", "image_choice", "audio", "illustrated", "multiple_select", "essay"] },
+        "prompt": { "type": "string", "maxLength": 2000 },
+        "correctAnswer": { "type": "string", "maxLength": 2000 },
+        "weight": { "type": "number" },
+        "verificationStatus": { "type": "string", "enum": ["VERIFIED", "BELUM_DIVERIFIKASI"] },
+        "isPublished": { "type": "boolean" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "assessmentId", "subjectId", "order", "type", "prompt", "correctAnswer", "weight", "isPublished", "ownerId", "createdAt", "updatedAt"]
+    },
+    "PublicQuestion": {
+      "title": "PublicQuestion",
+      "description": "Student-facing question prompt and options without confidential PSAS answer keys",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "assessmentId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "subjectId": { "type": "string", "maxLength": 40 },
+        "order": { "type": "number" },
+        "type": { "type": "string", "enum": ["multiple_choice", "true_false", "short_answer", "matching", "ordering", "drag_drop", "image_choice", "audio", "illustrated", "multiple_select", "essay"] },
+        "prompt": { "type": "string", "maxLength": 2000 },
+        "options": { "type": "array" },
+        "mediaUrl": { "type": "string", "maxLength": 1000 },
+        "audioUrl": { "type": "string", "maxLength": 1000 },
+        "audioText": { "type": "string", "maxLength": 1000 },
+        "matchLeft": { "type": "array" },
+        "matchRight": { "type": "array" },
+        "orderingItems": { "type": "array" },
+        "dragItems": { "type": "array" },
+        "dragTargets": { "type": "array" },
+        "imageOptions": { "type": "array" },
+        "weight": { "type": "number" },
+        "topic": { "type": "string", "maxLength": 200 },
+        "indicator": { "type": "string", "maxLength": 300 },
+        "difficulty": { "type": "string", "enum": ["mudah", "sedang", "sulit"] },
+        "practiceHint": { "type": "string", "maxLength": 500 },
+        "practiceExplanation": { "type": "string", "maxLength": 1000 },
+        "practiceKey": { "type": "string", "maxLength": 1000 },
+        "bankItemId": { "type": "string", "maxLength": 128 },
+        "numericTolerance": { "type": "number" },
+        "allowPartialScoring": { "type": "boolean" },
+        "isPublished": { "type": "boolean" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "assessmentId", "subjectId", "order", "type", "prompt", "weight", "isPublished", "ownerId", "createdAt", "updatedAt"]
+    },
+    "QuestionKey": {
+      "title": "QuestionKey",
+      "description": "Confidential teacher-only answer keys, accepted variations, and scoring rubrics",
+      "type": "object",
+      "properties": {
+        "questionId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "assessmentId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "type": { "type": "string", "maxLength": 40 },
+        "correctAnswer": { "type": "string", "maxLength": 2000 },
+        "acceptedVariations": { "type": "array" },
+        "numericTolerance": { "type": "number" },
+        "rubric": { "type": "string", "maxLength": 2000 },
+        "explanation": { "type": "string", "maxLength": 1000 },
+        "weight": { "type": "number" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["questionId", "assessmentId", "type", "correctAnswer", "weight", "ownerId", "updatedAt"]
+    },
+    "QuestionBankItem": {
+      "title": "QuestionBankItem",
+      "description": "Reusable central question bank item stored by teachers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "subjectId": { "type": "string", "maxLength": 40 },
+        "grade": { "type": "string", "maxLength": 16 },
+        "semester": { "type": "string", "enum": ["Ganjil", "Genap"] },
+        "topic": { "type": "string", "maxLength": 200 },
+        "competency": { "type": "string", "maxLength": 300 },
+        "indicator": { "type": "string", "maxLength": 300 },
+        "type": { "type": "string", "maxLength": 40 },
+        "difficulty": { "type": "string", "enum": ["mudah", "sedang", "sulit"] },
+        "prompt": { "type": "string", "maxLength": 2000 },
+        "payload": { "type": "object" },
+        "correctAnswer": { "type": "string", "maxLength": 2000 },
+        "acceptedVariations": { "type": "array" },
+        "numericTolerance": { "type": "number" },
+        "rubric": { "type": "string", "maxLength": 2000 },
+        "explanation": { "type": "string", "maxLength": 1000 },
+        "imageUrl": { "type": "string", "maxLength": 1000 },
+        "tags": { "type": "array" },
+        "isActive": { "type": "boolean" },
+        "archivedAt": { "type": "string", "maxLength": 64 },
+        "archivedBy": { "type": "string", "maxLength": 128 },
+        "weight": { "type": "number" },
+        "verificationStatus": { "type": "string", "enum": ["VERIFIED", "BELUM_DIVERIFIKASI"] },
+        "importBatchId": { "type": "string", "maxLength": 128 },
+        "sourceFileName": { "type": "string", "maxLength": 200 },
+        "sourceFileType": { "type": "string", "maxLength": 40 },
+        "sourcePage": { "type": "number" },
+        "sourceQuestionNumber": { "type": "string", "maxLength": 32 },
+        "extractionStatus": { "type": "string", "enum": ["success", "needs_review", "failed"] },
+        "extractionConfidence": { "type": "number" },
+        "needsReview": { "type": "boolean" },
+        "importedBy": { "type": "string", "maxLength": 128 },
+        "importedAt": { "type": "string", "maxLength": 64 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "subjectId", "grade", "type", "prompt", "correctAnswer", "weight", "ownerId", "createdAt", "updatedAt"]
+    },
+    "AssessmentSession": {
+      "title": "AssessmentSession",
+      "description": "Student assessment session linked to student, class, and assessment with immutable question snapshots",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "assessmentId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "subjectId": { "type": "string", "maxLength": 40 },
+        "classId": { "type": "string", "maxLength": 64 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "mode": { "type": "string", "enum": ["psas", "latihan", "simulasi"] },
+        "studentName": { "type": "string", "maxLength": 120 },
+        "gradeClass": { "type": "string", "maxLength": 24 },
+        "participantNumber": { "type": "string", "maxLength": 40 },
+        "characterId": { "type": "string", "enum": ["boy", "girl"] },
+        "status": { "type": "string", "enum": ["in_progress", "submitted", "graded"] },
+        "currentIndex": { "type": "number" },
+        "answeredIds": { "type": "array" },
+        "questionOrder": { "type": "array" },
+        "totalQuestions": { "type": "number" },
+        "progressPercent": { "type": "number" },
+        "checkpointsUnlocked": { "type": "number" },
+        "artifactsEarned": { "type": "array" },
+        "starsEarned": { "type": "number" },
+        "attemptNumber": { "type": "number" },
+        "deadlineAt": { "type": "string", "maxLength": 64 },
+        "serverNowAt": { "type": "string", "maxLength": 64 },
+        "flaggedIds": { "type": "array" },
+        "optionOrderMap": { "type": "object" },
+        "lastSavedAt": { "type": "string", "maxLength": 64 },
+        "autoSubmittedByTimeout": { "type": "boolean" },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "lastActivityAt": { "type": "string", "format": "date-time" },
+        "submittedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "assessmentId", "subjectId", "studentName", "gradeClass", "status", "currentIndex", "totalQuestions", "createdAt", "updatedAt"]
+    },
+    "StudentAnswer": {
+      "title": "StudentAnswer",
+      "description": "Individual student response linked to session and question with snapshot fields for historical accuracy",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 160, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "sessionId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "assessmentId": { "type": "string", "maxLength": 128 },
+        "questionId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "questionPromptSnapshot": { "type": "string", "maxLength": 2000 },
+        "questionWeightSnapshot": { "type": "number" },
+        "answerValue": { "type": "string", "maxLength": 4000 },
+        "isAnswered": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "sessionId", "questionId", "answerValue", "isAnswered", "updatedAt"]
+    },
+    "AssessmentResult": {
+      "title": "AssessmentResult",
+      "description": "Teacher-verified and backend-computed assessment score and analysis record",
+      "type": "object",
+      "properties": {
+        "sessionId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "assessmentId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "assessmentTitle": { "type": "string", "maxLength": 160 },
+        "subjectId": { "type": "string", "maxLength": 40 },
+        "classId": { "type": "string", "maxLength": 64 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 120 },
+        "gradeClass": { "type": "string", "maxLength": 24 },
+        "participantNumber": { "type": "string", "maxLength": 40 },
+        "examMode": { "type": "string", "enum": ["psas", "latihan", "simulasi"] },
+        "examType": { "type": "string", "enum": ["latihan", "ulangan_harian", "sumatif", "psas", "simulasi"] },
+        "attemptNumber": { "type": "number" },
+        "isOfficialScore": { "type": "boolean" },
+        "gradingStatus": { "type": "string", "enum": ["auto_graded", "waiting_essay_grading", "finalized"] },
+        "objectiveScore": { "type": "number" },
+        "finalScore": { "type": "number" },
+        "earnedPoints": { "type": "number" },
+        "maxPoints": { "type": "number" },
+        "correctCount": { "type": "number" },
+        "wrongCount": { "type": "number" },
+        "unansweredCount": { "type": "number" },
+        "needsManualReview": { "type": "boolean" },
+        "manualScores": { "type": "object" },
+        "essayGrading": { "type": "object" },
+        "questionOutcomes": { "type": "object" },
+        "auditTrail": { "type": "array" },
+        "durationSeconds": { "type": "number" },
+        "showToStudent": { "type": "boolean" },
+        "gradedBy": { "type": "string", "maxLength": 128 },
+        "startedAt": { "type": "string", "maxLength": 64 },
+        "submittedAt": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sessionId", "schoolId", "assessmentId", "subjectId", "studentName", "gradeClass", "finalScore", "correctCount", "wrongCount", "unansweredCount", "gradedBy", "createdAt", "updatedAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Append-only security and activity audit log entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "actorType": { "type": "string", "enum": ["admin", "teacher", "student", "system"] },
+        "actorId": { "type": "string", "maxLength": 128 },
+        "actorName": { "type": "string", "maxLength": 120 },
+        "action": { "type": "string", "maxLength": 80 },
+        "targetCollection": { "type": "string", "maxLength": 64 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["success", "denied", "warning"] },
+        "detail": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "actorType", "actorId", "action", "status", "createdAt"]
+    },
+    "AdventureProfile": {
+      "title": "AdventureProfile",
+      "description": "Student explorer character, customization, level, and aggregate adventure stats (no PII)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 160, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "studentId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "classId": { "type": "string", "maxLength": 64 },
+        "gradeClass": { "type": "string", "maxLength": 24 },
+        "displayName": { "type": "string", "maxLength": 120 },
+        "characterId": { "type": "string", "enum": ["boy", "girl"] },
+        "characterSelected": { "type": "boolean" },
+        "nickname": { "type": "string", "maxLength": 32 },
+        "outfitTheme": { "type": "string", "enum": ["rimba_emerald", "langit_biru", "mentari_emas", "senja_merah"] },
+        "bagStyle": { "type": "string", "enum": ["ransel_kompas", "tas_peta", "tas_bintang"] },
+        "shoeStyle": { "type": "string", "enum": ["sepatu_rimba", "sepatu_kilat"] },
+        "accentColor": { "type": "string", "maxLength": 32 },
+        "totalXp": { "type": "number" },
+        "level": { "type": "number" },
+        "levelTitle": { "type": "string", "maxLength": 80 },
+        "worldsExploredCount": { "type": "number" },
+        "worldsCompletedCount": { "type": "number" },
+        "checkpointsCompletedCount": { "type": "number" },
+        "badgesEarnedCount": { "type": "number" },
+        "activeDaysCount": { "type": "number" },
+        "lastActivityDate": { "type": "string", "maxLength": 32 },
+        "lastWorldId": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "studentId", "characterId", "characterSelected", "totalXp", "level", "levelTitle", "createdAt", "updatedAt"]
+    },
+    "AdventureWorld": {
+      "title": "AdventureWorld",
+      "description": "Teacher/Admin controlled world availability and fantasy expedition configuration for each of the 10 worlds",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 40, "pattern": "^[a-z0-9_]+$" },
+        "schoolId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "number": { "type": "number" },
+        "subjectId": { "type": "string", "maxLength": 40, "pattern": "^[a-z0-9_]+$" },
+        "subjectName": { "type": "string", "maxLength": 80 },
+        "worldName": { "type": "string", "maxLength": 120 },
+        "portalName": { "type": "string", "maxLength": 120 },
+        "zoneTheme": { "type": "string", "maxLength": 64 },
+        "themeSummary": { "type": "string", "maxLength": 600 },
+        "companionName": { "type": "string", "maxLength": 80 },
+        "artifactName": { "type": "string", "maxLength": 80 },
+        "isAvailable": { "type": "boolean" },
+        "isActive": { "type": "boolean" },
+        "availabilityReason": { "type": "string", "maxLength": 300 },
+        "scheduleLabel": { "type": "string", "maxLength": 120 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "number", "subjectId", "worldName", "isAvailable", "isActive", "ownerId", "updatedAt"]
+    },
+    "WorldProgress": {
+      "title": "WorldProgress",
+      "description": "Server-computed student exploration progress inside a specific world",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 160, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "worldId": { "type": "string", "maxLength": 40 },
+        "status": { "type": "string", "enum": ["belum_tersedia", "tersedia", "sedang_dijelajahi", "selesai"] },
+        "progressPercent": { "type": "number" },
+        "xpEarned": { "type": "number" },
+        "checkpointsCompleted": { "type": "number" },
+        "checkpointsTotal": { "type": "number" },
+        "lastCheckpointId": { "type": "string", "maxLength": 128 },
+        "openedAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "studentId", "worldId", "status", "progressPercent", "xpEarned", "updatedAt"]
+    },
+    "AdventureCheckpoint": {
+      "title": "AdventureCheckpoint",
+      "description": "Teacher-configured checkpoint station inside an adventure world",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "worldId": { "type": "string", "maxLength": 40, "pattern": "^[a-z0-9_]+$" },
+        "order": { "type": "number" },
+        "title": { "type": "string", "maxLength": 120 },
+        "storyIntro": { "type": "string", "maxLength": 600 },
+        "checkpointType": { "type": "string", "enum": ["story", "exploration", "mission_gate"] },
+        "xpReward": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "worldId", "order", "title", "checkpointType", "xpReward", "isActive", "ownerId", "createdAt", "updatedAt"]
+    },
+    "CheckpointProgress": {
+      "title": "CheckpointProgress",
+      "description": "Student progression record per checkpoint inside a world",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 160, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "worldId": { "type": "string", "maxLength": 40 },
+        "checkpointId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["terbuka", "sedang_dikerjakan", "selesai"] },
+        "xpAwarded": { "type": "number" },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "studentId", "worldId", "checkpointId", "status", "updatedAt"]
+    },
+    "AdventureBadge": {
+      "title": "AdventureBadge",
+      "description": "Catalog definition of official adventure achievement badges",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "code": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 400 },
+        "category": { "type": "string", "enum": ["milestone", "world", "consistency"] },
+        "iconKey": { "type": "string", "maxLength": 64 },
+        "targetWorldId": { "type": "string", "maxLength": 40 },
+        "xpBonus": { "type": "number" },
+        "order": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "code", "name", "category", "order", "isActive", "ownerId", "updatedAt"]
+    },
+    "StudentBadge": {
+      "title": "StudentBadge",
+      "description": "Server-awarded badge earned by a student without duplication",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 160, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "badgeId": { "type": "string", "maxLength": 64 },
+        "badgeName": { "type": "string", "maxLength": 100 },
+        "badgeCategory": { "type": "string", "enum": ["milestone", "world", "consistency"] },
+        "worldId": { "type": "string", "maxLength": 40 },
+        "eventId": { "type": "string", "maxLength": 128 },
+        "earnedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "studentId", "badgeId", "badgeName", "earnedAt"]
+    },
+    "XpTransaction": {
+      "title": "XpTransaction",
+      "description": "Immutable server-authoritative XP grant transaction with deduplication key",
+      "type": "object",
+      "properties": {
+        "transactionId": { "type": "string", "maxLength": 160, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "sourceType": { "type": "string", "enum": ["BaseCampVisited", "CharacterSelected", "WorldOpened", "CheckpointCompleted", "ExamCompleted"] },
+        "sourceRefId": { "type": "string", "maxLength": 128 },
+        "worldId": { "type": "string", "maxLength": 40 },
+        "amount": { "type": "number" },
+        "previousTotalXp": { "type": "number" },
+        "newTotalXp": { "type": "number" },
+        "previousLevel": { "type": "number" },
+        "newLevel": { "type": "number" },
+        "description": { "type": "string", "maxLength": 240 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["transactionId", "schoolId", "studentId", "sourceType", "amount", "previousTotalXp", "newTotalXp", "createdAt"]
+    },
+    "AdventureEvent": {
+      "title": "AdventureEvent",
+      "description": "Immutable server-recorded progression event log",
+      "type": "object",
+      "properties": {
+        "eventId": { "type": "string", "maxLength": 160, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "eventType": { "type": "string", "enum": ["CharacterSelected", "BaseCampVisited", "WorldOpened", "CheckpointOpened", "CheckpointCompleted", "XPGranted", "LevelUp", "BadgeEarned"] },
+        "worldId": { "type": "string", "maxLength": 40 },
+        "checkpointId": { "type": "string", "maxLength": 128 },
+        "badgeId": { "type": "string", "maxLength": 64 },
+        "xpAmount": { "type": "number" },
+        "levelAfter": { "type": "number" },
+        "detail": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["eventId", "schoolId", "studentId", "eventType", "createdAt"]
+    },
+    "ImportBatch": {
+      "title": "ImportBatch",
+      "description": "Teacher-initiated AI Question Import batch history and summary",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "schoolId": { "type": "string", "maxLength": 64 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "ownerName": { "type": "string", "maxLength": 120 },
+        "sourceMode": { "type": "string", "enum": ["document", "photo", "camera"] },
+        "defaultSubjectId": { "type": "string", "maxLength": 40 },
+        "defaultGrade": { "type": "string", "maxLength": 16 },
+        "defaultSemester": { "type": "string", "enum": ["Ganjil", "Genap"] },
+        "status": { "type": "string", "enum": ["uploaded", "processing", "review_required", "completed", "failed", "cancelled"] },
+        "fileNames": { "type": "array" },
+        "totalExtracted": { "type": "number" },
+        "savedCount": { "type": "number" },
+        "savedQuestionIds": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "schoolId", "ownerId", "sourceMode", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/schools/{schoolId}": {
+      "schema": { "$ref": "#/entities/School" },
+      "description": "School master records starting with sdn_pekiringan"
+    },
+    "/users/{uid}": {
+      "schema": { "$ref": "#/entities/UserAccount" },
+      "description": "Authenticated teacher and administrator accounts"
+    },
+    "/admins/{uid}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Administrator registry"
+    },
+    "/teachers/{uid}": {
+      "schema": { "$ref": "#/entities/TeacherProfile" },
+      "description": "Teacher profiles with authoring permissions"
+    },
+    "/classes/{classId}": {
+      "schema": { "$ref": "#/entities/ClassRoom" },
+      "description": "School class list (e.g., 3A, 3B, 3C, 3D)"
+    },
+    "/subjects/{subjectId}": {
+      "schema": { "$ref": "#/entities/Subject" },
+      "description": "Modular subjects and 10 adventure worlds"
+    },
+    "/students/{studentId}": {
+      "schema": { "$ref": "#/entities/Student" },
+      "description": "Registered student roster (teacher/admin access only)"
+    },
+    "/studentAccessKeys/{lookupId}": {
+      "schema": { "$ref": "#/entities/StudentAccessKey" },
+      "description": "Hashed get-only student verification lookup without exposing student list"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/AppSetting" },
+      "description": "Global application configuration"
+    },
+    "/assessments/{assessmentId}": {
+      "schema": { "$ref": "#/entities/Assessment" },
+      "description": "Full teacher assessment definitions"
+    },
+    "/assessmentAccess/{codeHash}": {
+      "schema": { "$ref": "#/entities/AssessmentAccess" },
+      "description": "Hashed get-only exam code verification records"
+    },
+    "/publicAssessments/{assessmentId}": {
+      "schema": { "$ref": "#/entities/PublicAssessment" },
+      "description": "Student-safe portal metadata without plaintext exam codes or answer keys"
+    },
+    "/questions/{questionId}": {
+      "schema": { "$ref": "#/entities/Question" },
+      "description": "Teacher-only master question records"
+    },
+    "/publicQuestions/{questionId}": {
+      "schema": { "$ref": "#/entities/PublicQuestion" },
+      "description": "Student-safe question prompts without PSAS answer keys"
+    },
+    "/questionKeys/{questionId}": {
+      "schema": { "$ref": "#/entities/QuestionKey" },
+      "description": "Teacher-only answer keys and grading rubrics"
+    },
+    "/questionBanks/{bankItemId}": {
+      "schema": { "$ref": "#/entities/QuestionBankItem" },
+      "description": "Central reusable question bank for teachers"
+    },
+    "/assessmentSessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/AssessmentSession" },
+      "description": "Student adventure progress and session state"
+    },
+    "/studentAnswers/{answerId}": {
+      "schema": { "$ref": "#/entities/StudentAnswer" },
+      "description": "Autosaved student answers linked to session and question with snapshot"
+    },
+    "/results/{sessionId}": {
+      "schema": { "$ref": "#/entities/AssessmentResult" },
+      "description": "Backend-computed and teacher-verified final assessment scores"
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Append-only security and activity audit trail"
+    },
+    "/adventureProfiles/{profileId}": {
+      "schema": { "$ref": "#/entities/AdventureProfile" },
+      "description": "Student explorer character and level/XP summary (server & teacher readable only)"
+    },
+    "/adventureWorlds/{worldId}": {
+      "schema": { "$ref": "#/entities/AdventureWorld" },
+      "description": "Availability & configuration of all 10 Grade 3 worlds"
+    },
+    "/worldProgress/{progressId}": {
+      "schema": { "$ref": "#/entities/WorldProgress" },
+      "description": "Per-student progress inside each adventure world"
+    },
+    "/checkpoints/{checkpointId}": {
+      "schema": { "$ref": "#/entities/AdventureCheckpoint" },
+      "description": "Configured checkpoint stations within each world"
+    },
+    "/checkpointProgress/{cpProgressId}": {
+      "schema": { "$ref": "#/entities/CheckpointProgress" },
+      "description": "Student progression state per checkpoint"
+    },
+    "/badges/{badgeId}": {
+      "schema": { "$ref": "#/entities/AdventureBadge" },
+      "description": "Official 12 Adventure Engine achievement badge catalog"
+    },
+    "/studentBadges/{studentBadgeId}": {
+      "schema": { "$ref": "#/entities/StudentBadge" },
+      "description": "Server-awarded achievement badges per student"
+    },
+    "/xpTransactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/XpTransaction" },
+      "description": "Immutable server-authoritative XP grant transactions"
+    },
+    "/adventureEvents/{eventId}": {
+      "schema": { "$ref": "#/entities/AdventureEvent" },
+      "description": "Immutable adventure event history"
+    },
+    "/importBatches/{batchId}": {
+      "schema": { "$ref": "#/entities/ImportBatch" },
+      "description": "Teacher AI Question Import audit and history metadata"
+    }
+  }
+}

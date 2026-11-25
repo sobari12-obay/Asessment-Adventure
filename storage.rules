@@ -1,0 +1,57 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules — PSAS ADVENTURE (SDN Pekiringan)
+// Catatan: Bucket Storage harus diaktifkan terlebih dahulu oleh pemilik proyek di Firebase Console,
+// lalu aturan ini di-deploy melalui Firebase Console / Firebase CLI.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isTeacherOrAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'sobari12@guru.sd.belajar.id' ||
+        (
+          firestore.exists(/databases/ai-studio-554d8f01-9033-4ddb-9b02-bd17a90579b8/documents/teachers/$(request.auth.uid)) &&
+          firestore.get(/databases/ai-studio-554d8f01-9033-4ddb-9b02-bd17a90579b8/documents/teachers/$(request.auth.uid)).data.isActive != false
+        ) ||
+        firestore.exists(/databases/ai-studio-554d8f01-9033-4ddb-9b02-bd17a90579b8/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Media soal & aset sekolah (gambar, audio, PDF materi) — publikasi baca terbatas per schoolId
+    match /schools/{schoolId}/public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isTeacherOrAdmin()
+        && schoolId == 'sdn_pekiringan'
+        && request.resource != null
+        && request.resource.size <= 10 * 1024 * 1024
+        && (
+          request.resource.contentType.matches('image/.*') ||
+          request.resource.contentType.matches('audio/.*') ||
+          request.resource.contentType == 'application/pdf'
+        );
+    }
+
+    // Berkas internal sekolah (dokumen soal mentah, foto siswa) — hanya guru/admin terverifikasi
+    match /schools/{schoolId}/private/{allPaths=**} {
+      allow read: if isTeacherOrAdmin() && schoolId == 'sdn_pekiringan';
+      allow write: if isTeacherOrAdmin()
+        && schoolId == 'sdn_pekiringan'
+        && request.resource != null
+        && request.resource.size <= 10 * 1024 * 1024
+        && (
+          request.resource.contentType.matches('image/.*') ||
+          request.resource.contentType.matches('audio/.*') ||
+          request.resource.contentType == 'application/pdf'
+        );
+    }
+
+    // Tolak seluruh path lain secara default
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

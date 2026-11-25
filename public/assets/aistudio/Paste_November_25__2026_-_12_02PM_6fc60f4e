@@ -1,0 +1,1371 @@
+# STAGE 3 — ASSESSMENT ENGINE
+## PSAS ADVENTURE — 10 Dunia Penjelajah Cilik
+
+Anda adalah Senior Full-Stack Engineer, Assessment System Architect, Database Engineer, Security Engineer, Educational Technology Developer, dan Game-Based Learning Designer.
+
+Lanjutkan proyek yang sudah ada:
+
+**PSAS ADVENTURE — 10 Dunia Penjelajah Cilik**
+
+Stage 1A, Stage 1B, Stage 1C, Stage 1D, dan Stage 2 telah diselesaikan dan dinyatakan siap.
+
+Sekarang tugas Anda adalah mengembangkan STAGE 3 — ASSESSMENT ENGINE.
+
+Assessment Engine adalah mesin utama yang memungkinkan guru membuat, mengatur, menjalankan, menyimpan, mengumpulkan, dan menilai asesmen siswa.
+
+Sistem harus terhubung dengan:
+
+- Firebase.
+- Cloud Firestore.
+- Backend Cloud Run.
+- Sistem siswa.
+- Sistem guru.
+- Adventure Engine.
+- XP.
+- Level.
+- Badge.
+- Peta 10 dunia.
+
+Pembangunan harus dilakukan secara bertahap, terstruktur, aman, dan tidak merusak fitur sebelumnya.
+
+---
+
+# A. ATURAN WAJIB
+
+Sebelum memulai:
+
+1. Periksa seluruh struktur proyek.
+2. Periksa dokumentasi Stage 1A sampai Stage 2.
+3. Periksa frontend dan backend.
+4. Periksa Firestore schema.
+5. Periksa API.
+6. Periksa Firebase Security Rules.
+7. Periksa sistem autentikasi.
+8. Periksa Adventure Engine.
+9. Periksa XP dan Badge System.
+10. Periksa routing yang sudah ada.
+
+Jangan:
+
+- Membuat proyek baru.
+- Membangun ulang aplikasi.
+- Menghapus fitur yang telah berfungsi.
+- Mengubah arsitektur utama.
+- Mengganti Firebase.
+- Mengganti Cloud Run.
+- Membuat sistem ujian yang terpisah dari Adventure Engine.
+- Membuat kunci jawaban dapat diakses dari frontend siswa.
+- Membuat data fiktif seolah-olah berasal dari database.
+- Melakukan deployment tanpa persetujuan.
+
+Gunakan komponen dan struktur yang sudah ada.
+
+Jika terdapat struktur database atau API yang sudah dibuat sebelumnya, gunakan dan kembangkan struktur tersebut. Jangan membuat struktur duplikat.
+
+---
+
+# B. TUJUAN ASSESSMENT ENGINE
+
+Assessment Engine harus memungkinkan guru:
+
+1. Membuat asesmen.
+2. Mengatur asesmen.
+3. Menentukan mata pelajaran.
+4. Menentukan kelas.
+5. Menentukan jadwal.
+6. Menentukan durasi.
+7. Menentukan kode ujian.
+8. Menambahkan soal.
+9. Mengedit soal.
+10. Menghapus soal.
+11. Mengatur bobot nilai.
+12. Mengatur jumlah soal.
+13. Mengatur pengacakan.
+14. Mengatur batas percobaan.
+15. Mengatur mode ujian.
+16. Mengatur ketersediaan asesmen.
+17. Melihat peserta.
+18. Melihat status pengerjaan.
+19. Mengelola hasil.
+20. Mengelola penilaian uraian.
+
+Siswa harus dapat:
+
+1. Masuk ke ujian.
+2. Melihat petunjuk.
+3. Memulai ujian.
+4. Mengerjakan soal.
+5. Berpindah soal.
+6. Menandai soal.
+7. Melihat soal yang belum dijawab.
+8. Melihat sisa waktu.
+9. Menyimpan jawaban otomatis.
+10. Mengirim ujian.
+11. Melihat konfirmasi pengiriman.
+12. Melihat hasil sesuai pengaturan guru.
+
+---
+
+# C. QUESTION BANK — BANK SOAL
+
+Bangun modul bank soal untuk guru.
+
+Bank soal harus menjadi tempat penyimpanan soal yang dapat digunakan kembali pada asesmen berbeda.
+
+Menu bank soal:
+
+- Daftar soal.
+- Tambah soal.
+- Edit soal.
+- Hapus soal.
+- Duplikasi soal.
+- Pratinjau soal.
+- Pencarian soal.
+- Filter mata pelajaran.
+- Filter kelas.
+- Filter jenis soal.
+- Filter kategori.
+- Filter tingkat kesulitan.
+- Filter status soal.
+
+Setiap soal memiliki metadata:
+
+- questionId.
+- schoolId.
+- subjectId.
+- worldId.
+- grade.
+- questionType.
+- questionText.
+- questionImage.
+- options.
+- answerKey.
+- answerExplanation.
+- difficulty.
+- scoreWeight.
+- tags.
+- createdBy.
+- createdAt.
+- updatedAt.
+- isActive.
+
+Kunci jawaban dan penjelasan tidak boleh dikirim ke frontend siswa sebelum atau selama ujian resmi.
+
+Penyimpanan kunci jawaban harus berada dalam struktur backend yang terlindungi atau pemisahan dokumen yang aman.
+
+Jangan menempatkan answerKey dalam data soal yang dapat dibaca siswa.
+
+---
+
+# D. JENIS SOAL
+
+Implementasikan sistem soal yang dapat mendukung jenis berikut.
+
+## 1. Pilihan Ganda
+
+- Satu jawaban benar.
+- Pilihan A, B, C, D.
+- Dapat menggunakan gambar.
+- Dapat menggunakan teks.
+- Dapat menggunakan kombinasi teks dan gambar.
+- Pengacakan pilihan.
+
+## 2. Pilihan Ganda Kompleks
+
+- Siswa memilih lebih dari satu jawaban.
+- Jawaban benar dapat terdiri dari beberapa opsi.
+- Skoring dapat dikonfigurasi.
+
+## 3. Benar atau Salah
+
+- Pernyataan.
+- Pilihan benar.
+- Pilihan salah.
+
+## 4. Isian Singkat
+
+- Jawaban teks.
+- Jawaban angka.
+- Jawaban singkat.
+- Pengaturan jawaban yang diterima.
+- Pengaturan toleransi jika relevan.
+
+Untuk jawaban angka, dukung toleransi nilai jika dikonfigurasi.
+
+Untuk jawaban teks, siapkan mekanisme normalisasi:
+
+- Trim spasi.
+- Normalisasi huruf besar dan kecil jika diatur.
+- Normalisasi format sederhana.
+
+Jangan menggunakan pencocokan teks yang terlalu ketat jika terdapat variasi jawaban yang dapat diterima.
+
+## 5. Menjodohkan
+
+- Kolom kiri.
+- Kolom kanan.
+- Pasangan jawaban.
+- Pengacakan pilihan pasangan.
+
+## 6. Uraian
+
+- Jawaban teks panjang.
+- Rubrik penilaian.
+- Skor maksimum.
+- Penilaian manual oleh guru.
+
+## 7. Soal Gambar
+
+Dukung soal yang memiliki gambar.
+
+Gambar dapat digunakan pada:
+
+- Pilihan ganda.
+- Isian.
+- Menjodohkan.
+- Uraian.
+
+Gunakan Firebase Storage untuk penyimpanan gambar.
+
+Batasi ukuran dan jenis file.
+
+Validasi file sebelum upload.
+
+---
+
+# E. QUESTION EDITOR — EDITOR SOAL
+
+Buat editor soal yang mudah digunakan guru SD.
+
+Editor harus memiliki:
+
+- Form teks soal.
+- Editor teks sederhana.
+- Upload gambar.
+- Pilihan jenis soal.
+- Pilihan jawaban.
+- Penetapan jawaban benar.
+- Bobot nilai.
+- Tingkat kesulitan.
+- Mata pelajaran.
+- Kelas.
+- Tag.
+- Pratinjau.
+
+Guru dapat:
+
+- Menambah soal.
+- Mengedit soal.
+- Menyimpan soal.
+- Membatalkan perubahan.
+- Menyalin soal.
+- Menghapus soal.
+
+Sebelum menghapus soal, tampilkan konfirmasi.
+
+Jika soal digunakan dalam asesmen yang sudah berjalan atau memiliki hasil siswa, jangan menghapus data historis yang diperlukan.
+
+Gunakan mekanisme arsip atau soft delete jika diperlukan.
+
+Editor harus nyaman digunakan pada HP dan desktop.
+
+---
+
+# F. EXAM BUILDER — PEMBUAT ASESMEN
+
+Bangun modul membuat asesmen.
+
+Form konfigurasi:
+
+## Identitas asesmen
+
+- Nama asesmen.
+- Deskripsi.
+- Tahun pelajaran.
+- Semester.
+- Mata pelajaran.
+- Kelas.
+- Guru penyelenggara.
+- Jenis asesmen.
+
+## Jenis asesmen
+
+Sediakan:
+
+- Latihan.
+- Ulangan harian.
+- Sumatif.
+- PSAS.
+- Simulasi.
+
+## Pengaturan ujian
+
+- Durasi.
+- Jadwal mulai.
+- Jadwal selesai.
+- Kode ujian.
+- Batas percobaan.
+- Jumlah soal.
+- Pengacakan soal.
+- Pengacakan pilihan.
+- Pengaturan navigasi.
+- Pengaturan hasil.
+- Pengaturan feedback.
+- Pengaturan penilaian.
+
+## Mode asesmen
+
+### MODE RESMI
+
+- Tidak menampilkan jawaban benar saat siswa mengerjakan.
+- Tidak menampilkan kunci jawaban.
+- Tidak menampilkan pembahasan.
+- Tidak memberikan feedback benar atau salah secara langsung.
+- Hasil ditampilkan sesuai pengaturan guru.
+- Kunci jawaban tidak dapat diakses siswa.
+- Sistem harus menjaga integritas ujian.
+
+### MODE LATIHAN
+
+- Dapat memberikan feedback.
+- Dapat menampilkan pembahasan jika diaktifkan.
+- Dapat menampilkan skor.
+- Dapat memberikan XP sesuai aturan yang dikonfigurasi.
+- Tidak boleh menggunakan kunci jawaban yang terekspos secara tidak aman.
+
+### MODE SIMULASI
+
+- Tampilan dan alur dapat menyerupai ujian resmi.
+- Tidak harus masuk ke penilaian resmi.
+- Dapat menggunakan konfigurasi khusus simulasi.
+- Status simulasi harus dibedakan dari ujian resmi.
+
+Jangan mencampur hasil latihan, simulasi, dan PSAS resmi pada laporan resmi sekolah.
+
+---
+
+# G. PEMILIHAN DAN PENGATURAN SOAL
+
+Guru dapat menambahkan soal ke asesmen dengan dua cara.
+
+## Cara 1 — Memilih dari Bank Soal
+
+Guru dapat:
+
+- Memilih soal yang tersedia.
+- Filter mata pelajaran.
+- Filter kelas.
+- Filter jenis soal.
+- Filter kesulitan.
+- Memilih beberapa soal.
+- Menambahkan soal terpilih.
+- Melihat daftar soal yang digunakan.
+
+## Cara 2 — Membuat Soal Langsung
+
+Guru dapat membuat soal langsung di dalam asesmen.
+
+Soal dapat disimpan:
+
+- Hanya dalam asesmen.
+- Ke bank soal jika guru memilih menyimpannya.
+
+## Pengaturan soal
+
+Guru dapat mengatur:
+
+- Urutan soal.
+- Bobot.
+- Jumlah soal.
+- Pengacakan soal.
+- Pengacakan pilihan.
+
+Jika pengacakan diaktifkan, sistem harus mempertahankan urutan yang sama selama sesi siswa agar jawaban tidak berubah posisi secara tidak konsisten.
+
+Jangan mengacak ulang soal setiap kali siswa membuka halaman.
+
+---
+
+# H. EXAM PREVIEW
+
+Sediakan pratinjau asesmen untuk guru.
+
+Guru dapat melihat:
+
+- Tampilan soal.
+- Tampilan pilihan.
+- Gambar.
+- Navigasi.
+- Timer.
+- Progress soal.
+- Tampilan mobile.
+- Tampilan desktop.
+
+Pratinjau harus menggunakan tampilan siswa.
+
+Namun, pratinjau guru tidak boleh membuat sesi ujian resmi atau memengaruhi data siswa.
+
+---
+
+# I. EXAM MANAGEMENT — PENGELOLAAN ASESMEN
+
+Buat menu pengelolaan asesmen.
+
+Guru dapat melihat daftar asesmen:
+
+- Draft.
+- Terjadwal.
+- Aktif.
+- Ditutup.
+- Selesai.
+- Diarsipkan.
+
+Guru dapat:
+
+- Membuat asesmen.
+- Mengedit draft.
+- Mengaktifkan asesmen.
+- Menutup asesmen.
+- Mengarsipkan asesmen.
+- Melihat peserta.
+- Melihat progres.
+- Melihat hasil.
+
+Asesmen yang sudah memiliki peserta atau hasil tidak boleh diubah sembarangan.
+
+Jika perubahan dapat memengaruhi hasil atau sesi aktif, tampilkan peringatan dan batasi perubahan.
+
+Jangan menghapus data hasil ujian hanya karena asesmen dihapus dari tampilan.
+
+---
+
+# J. STUDENT EXAM ENTRY
+
+Siswa dapat masuk ke asesmen melalui:
+
+- Nama siswa.
+- Kelas.
+- Kode ujian.
+- Nomor peserta atau pembeda identitas jika diperlukan.
+
+Gunakan mekanisme autentikasi siswa yang sudah dibangun pada Stage 1C.
+
+Backend harus:
+
+1. Memvalidasi siswa.
+2. Memvalidasi kelas.
+3. Memvalidasi asesmen.
+4. Memvalidasi kode ujian.
+5. Memvalidasi jadwal.
+6. Memvalidasi status asesmen.
+7. Memvalidasi percobaan.
+8. Memvalidasi status peserta.
+9. Memvalidasi sesi.
+10. Menghasilkan sesi ujian yang aman.
+
+Jangan mengirim daftar siswa ke browser.
+
+Jangan mengizinkan siswa masuk ke ujian yang tidak ditujukan untuk kelasnya.
+
+Jangan mempercayai studentId yang dikirim frontend.
+
+Jangan menggunakan nama siswa saja sebagai identitas autentikasi.
+
+Jangan menyimpan kode ujian asli pada log.
+
+Terapkan rate limiting.
+
+---
+
+# K. EXAM INSTRUCTIONS — PETUNJUK UJIAN
+
+Sebelum ujian dimulai, tampilkan halaman petunjuk.
+
+Isi:
+
+- Nama asesmen.
+- Mata pelajaran.
+- Kelas.
+- Durasi.
+- Jumlah soal.
+- Petunjuk.
+- Ketentuan ujian.
+- Tombol mulai.
+
+Bahasa harus sederhana dan sesuai siswa SD.
+
+Tampilkan petunjuk seperti:
+
+1. Bacalah soal dengan teliti.
+2. Pilih atau tuliskan jawaban dengan benar.
+3. Jawaban akan tersimpan secara otomatis.
+4. Gunakan tombol berikutnya untuk melanjutkan.
+5. Periksa kembali jawaban sebelum mengirim.
+6. Jika waktu habis, ujian akan ditutup sesuai aturan.
+7. Jangan keluar dari halaman ujian tanpa memahami konsekuensinya.
+
+Jangan memulai timer sebelum siswa menekan tombol mulai dan backend mengonfirmasi sesi dimulai.
+
+---
+
+# L. EXAM UI — HALAMAN PENGERJAAN
+
+Bangun tampilan ujian siswa.
+
+Tampilan harus:
+
+- Ramah anak.
+- Tidak terlalu ramai.
+- Mudah digunakan.
+- Responsif.
+- Tidak mengganggu konsentrasi.
+
+Komponen:
+
+- Nama asesmen.
+- Mata pelajaran.
+- Timer.
+- Nomor soal.
+- Soal.
+- Gambar.
+- Pilihan jawaban.
+- Input jawaban.
+- Navigasi soal.
+- Tombol sebelumnya.
+- Tombol berikutnya.
+- Tombol tandai.
+- Progress soal.
+- Daftar nomor soal.
+- Tombol kirim ujian.
+
+Tampilkan status soal:
+
+- Belum dijawab.
+- Sudah dijawab.
+- Ditandai untuk ditinjau.
+
+Siswa dapat menandai soal untuk diperiksa kembali.
+
+Sediakan navigasi soal yang nyaman pada HP.
+
+Jangan membuat animasi berlebihan selama siswa mengerjakan.
+
+---
+
+# M. EXAM SESSION — SESI UJIAN
+
+Implementasikan sesi ujian yang aman.
+
+Saat siswa memulai:
+
+1. Backend memvalidasi peserta.
+2. Backend memvalidasi asesmen.
+3. Backend memvalidasi jadwal.
+4. Backend memvalidasi batas percobaan.
+5. Backend memvalidasi status asesmen.
+6. Backend membuat sesi.
+7. Backend menetapkan waktu mulai.
+8. Backend menetapkan waktu selesai berdasarkan durasi dan konfigurasi.
+9. Backend menetapkan urutan soal sesi.
+10. Backend mengirim soal yang aman kepada siswa.
+
+Simpan:
+
+- sessionId.
+- examId.
+- studentId.
+- startedAt.
+- deadlineAt.
+- status.
+- questionOrder.
+- lastActivityAt.
+- submittedAt.
+- attemptNumber.
+
+Waktu ujian harus menggunakan waktu server.
+
+Jangan mempercayai jam perangkat siswa.
+
+Jangan mengizinkan siswa memperpanjang waktu melalui manipulasi frontend.
+
+Jangan memberikan kunci jawaban pada session payload.
+
+Sesi harus dapat dipulihkan jika halaman refresh atau koneksi terputus.
+
+---
+
+# N. AUTOSAVE
+
+Implementasikan autosave jawaban.
+
+Autosave harus:
+
+- Menyimpan jawaban secara otomatis.
+- Menyimpan ketika jawaban berubah.
+- Menggunakan debounce yang wajar.
+- Menampilkan status penyimpanan.
+- Menampilkan status error.
+- Mengulang penyimpanan jika terjadi kegagalan sementara.
+- Menyimpan progress.
+- Mendukung pemulihan sesi.
+
+Status UI:
+
+- Menyimpan.
+- Tersimpan.
+- Gagal menyimpan.
+- Menunggu koneksi.
+
+Autosave harus dikonfirmasi oleh backend.
+
+Jangan menampilkan "tersimpan" sebelum server mengonfirmasi penyimpanan.
+
+Jika koneksi terputus:
+
+- Berikan status yang jelas.
+- Simpan sementara secara lokal dengan mekanisme yang aman dan terbatas.
+- Coba sinkronisasi ketika koneksi kembali.
+- Jangan menimpa data server dengan data lama tanpa pemeriksaan.
+- Jangan menganggap ujian dapat berjalan offline sepenuhnya jika backend tidak mendukung mekanisme tersebut.
+
+Jangan menyimpan kunci jawaban pada localStorage.
+
+Jangan menyimpan data sensitif berlebihan pada perangkat siswa.
+
+---
+
+# O. TIMER DAN PENGENDALIAN WAKTU
+
+Implementasikan timer ujian.
+
+Timer:
+
+- Menggunakan deadline server.
+- Ditampilkan pada frontend.
+- Diperbarui secara konsisten.
+- Tidak bergantung sepenuhnya pada jam perangkat.
+- Tidak dapat diperpanjang melalui manipulasi frontend.
+
+Jika waktu habis:
+
+1. Backend menentukan bahwa deadline telah tercapai.
+2. Sistem menutup sesi sesuai aturan.
+3. Sistem memproses jawaban yang telah tersimpan.
+4. Sistem mengirim status waktu habis.
+5. Sistem melakukan penilaian yang dapat dilakukan.
+6. Sistem menyimpan status sesi.
+
+Jika terdapat jawaban yang sedang dikirim ketika waktu habis, gunakan mekanisme konsistensi yang aman.
+
+Jangan kehilangan jawaban yang telah dikonfirmasi tersimpan.
+
+Jangan mengizinkan pengiriman jawaban setelah deadline kecuali kebijakan yang telah ditetapkan secara eksplisit mengizinkannya.
+
+---
+
+# P. NAVIGASI SOAL
+
+Implementasikan:
+
+- Sebelumnya.
+- Berikutnya.
+- Lompat ke nomor soal.
+- Tandai soal.
+- Daftar soal.
+- Progress.
+
+Navigasi harus tetap mempertahankan jawaban yang tersimpan.
+
+Pengaturan navigasi dapat ditentukan oleh guru.
+
+Jika guru mengaktifkan navigasi bebas, siswa dapat membuka soal mana saja.
+
+Jika guru menonaktifkan navigasi bebas, siswa mengikuti urutan soal sesuai konfigurasi.
+
+Jangan membuat fitur navigasi bebas atau terbatas yang tidak sesuai dengan konfigurasi asesmen.
+
+---
+
+# Q. SUBMISSION ENGINE — PENGIRIMAN UJIAN
+
+Implementasikan pengiriman ujian.
+
+Sebelum mengirim:
+
+- Tampilkan ringkasan.
+- Jumlah soal dijawab.
+- Jumlah belum dijawab.
+- Jumlah ditandai.
+- Konfirmasi pengiriman.
+
+Siswa dapat mengirim ujian secara manual.
+
+Jika deadline tercapai, sistem dapat melakukan pengiriman otomatis sesuai aturan.
+
+Backend harus:
+
+1. Memvalidasi sesi.
+2. Memvalidasi deadline.
+3. Memvalidasi status.
+4. Memvalidasi identitas siswa.
+5. Memvalidasi jawaban.
+6. Menutup sesi.
+7. Mencegah pengiriman ganda.
+8. Menghitung skor objektif.
+9. Menandai uraian yang perlu dinilai.
+10. Menyimpan hasil.
+11. Menyimpan status submission.
+
+Submission harus idempotent.
+
+Jika permintaan pengiriman dikirim berulang kali, sistem tidak boleh membuat submission atau hasil ganda.
+
+Setelah ujian dikirim, siswa tidak boleh mengubah jawaban.
+
+Tampilkan halaman konfirmasi selesai.
+
+---
+
+# R. SCORING ENGINE — PENILAIAN
+
+Implementasikan penilaian melalui backend.
+
+Jangan menghitung nilai final secara terpercaya hanya dari frontend.
+
+## Penilaian objektif
+
+Sistem harus dapat menilai:
+
+- Pilihan ganda.
+- Benar salah.
+- Pilihan ganda kompleks.
+- Isian singkat.
+- Menjodohkan.
+
+Skor harus menggunakan bobot soal.
+
+Rancang sistem skor yang dapat dikembangkan.
+
+Jika nilai maksimal adalah 100, gunakan konfigurasi yang konsisten dan dapat disesuaikan.
+
+Jika total bobot soal tidak sama dengan 100, sistem harus dapat melakukan normalisasi sesuai konfigurasi asesmen.
+
+## Penilaian uraian
+
+Uraian:
+
+- Tidak otomatis dianggap benar.
+- Tidak otomatis mendapatkan nilai penuh.
+- Ditandai untuk penilaian guru.
+- Memiliki rubrik.
+- Memiliki nilai maksimal.
+- Memiliki nilai yang diberikan guru.
+- Memiliki komentar jika diperlukan.
+
+Sediakan mekanisme penilaian manual.
+
+Guru dapat:
+
+- Membuka jawaban.
+- Membaca jawaban.
+- Melihat rubrik.
+- Memberikan skor.
+- Memberikan komentar.
+- Menyimpan penilaian.
+
+Nilai uraian harus dapat diperbarui melalui backend dengan audit trail.
+
+## Hasil
+
+Simpan:
+
+- Total skor objektif.
+- Skor uraian.
+- Total skor.
+- Nilai akhir.
+- Status penilaian.
+- Waktu penilaian.
+- Penilai.
+- Catatan.
+
+Jika uraian belum dinilai, jangan menampilkan nilai final yang seolah-olah sudah lengkap.
+
+---
+
+# S. FEEDBACK DAN HASIL SISWA
+
+Pengaturan hasil harus ditentukan oleh guru.
+
+Guru dapat mengatur:
+
+- Apakah siswa dapat melihat hasil.
+- Apakah siswa dapat melihat skor.
+- Apakah siswa dapat melihat jawaban benar.
+- Apakah siswa dapat melihat pembahasan.
+- Kapan hasil ditampilkan.
+
+Untuk PSAS resmi, default:
+
+- Jawaban benar disembunyikan.
+- Kunci jawaban disembunyikan.
+- Pembahasan disembunyikan.
+- Hasil mengikuti pengaturan guru.
+- Feedback benar atau salah selama ujian tidak ditampilkan.
+
+Untuk latihan, feedback dapat diaktifkan.
+
+Jangan menampilkan kunci jawaban melalui API yang tidak terlihat pada UI.
+
+Kunci jawaban harus benar-benar tidak dikirim kepada siswa jika tidak diizinkan.
+
+---
+
+# T. ADVENTURE ENGINE INTEGRATION
+
+Integrasikan Assessment Engine dengan Adventure Engine.
+
+Ketika siswa mengikuti asesmen:
+
+- Dunia terkait ditampilkan.
+- Progress dunia dicatat.
+- Checkpoint terkait dapat digunakan.
+- Event petualangan dicatat.
+
+Ketika asesmen berhasil diselesaikan:
+
+- Status sesi berubah.
+- Progress asesmen dicatat.
+- Progress dunia diperbarui.
+- XP dapat diberikan sesuai konfigurasi.
+- Lencana dapat diberikan jika memenuhi kriteria.
+- Level dapat meningkat.
+
+XP hanya diberikan melalui backend.
+
+Jangan memberikan XP berdasarkan event frontend yang tidak tervalidasi.
+
+Jangan memberikan XP ganda jika submission diproses berulang.
+
+Gunakan event atau transaction ID yang unik.
+
+Jangan menjadikan nilai rendah sebagai hukuman.
+
+Jangan mengurangi XP.
+
+Jangan mengunci siswa dari petualangan berikutnya karena nilai rendah.
+
+XP, lencana, dan level harus menjadi penghargaan atas usaha dan pencapaian yang tervalidasi.
+
+Jangan memberikan XP untuk asesmen yang dibatalkan atau tidak sah kecuali kebijakan yang jelas mengizinkan.
+
+---
+
+# U. FIRESTORE DATABASE
+
+Periksa schema yang telah ada.
+
+Jangan membuat collection duplikat.
+
+Jika diperlukan, gunakan struktur berikut:
+
+## questionBank
+
+- questionId.
+- schoolId.
+- subjectId.
+- worldId.
+- grade.
+- questionType.
+- questionText.
+- questionImage.
+- options.
+- tags.
+- difficulty.
+- scoreWeight.
+- createdBy.
+- createdAt.
+- updatedAt.
+- isActive.
+
+Kunci jawaban tidak boleh berada dalam dokumen yang dapat dibaca siswa.
+
+## questionKeys
+
+- questionId.
+- schoolId.
+- answerKey.
+- answerExplanation.
+- rubric.
+- updatedAt.
+
+Akses questionKeys harus terbatas pada backend dan role yang berwenang.
+
+## exams
+
+- examId.
+- schoolId.
+- title.
+- description.
+- subjectId.
+- classIds.
+- grade.
+- academicYear.
+- semester.
+- examType.
+- mode.
+- durationMinutes.
+- startAt.
+- endAt.
+- status.
+- examCodeHash.
+- attemptLimit.
+- shuffleQuestions.
+- shuffleOptions.
+- navigationPolicy.
+- resultPolicy.
+- scoringPolicy.
+- createdBy.
+- createdAt.
+- updatedAt.
+
+## examQuestions
+
+- examQuestionId.
+- examId.
+- questionId.
+- orderIndex.
+- scoreWeight.
+- createdAt.
+
+## examSessions
+
+- sessionId.
+- schoolId.
+- examId.
+- studentId.
+- attemptNumber.
+- questionOrder.
+- startedAt.
+- deadlineAt.
+- lastActivityAt.
+- status.
+- submittedAt.
+- createdAt.
+
+## studentAnswers
+
+- answerId.
+- sessionId.
+- studentId.
+- examId.
+- questionId.
+- answerValue.
+- answeredAt.
+- lastUpdatedAt.
+
+Jangan menyimpan answerKey dalam studentAnswers.
+
+## examSubmissions
+
+- submissionId.
+- schoolId.
+- examId.
+- sessionId.
+- studentId.
+- submittedAt.
+- status.
+- objectiveScore.
+- essayScore.
+- finalScore.
+- gradingStatus.
+- attemptNumber.
+
+## essayGrading
+
+- gradingId.
+- submissionId.
+- questionId.
+- studentId.
+- teacherId.
+- score.
+- rubricEvaluation.
+- feedback.
+- gradedAt.
+- updatedAt.
+
+## examAuditLogs
+
+- logId.
+- schoolId.
+- examId.
+- sessionId.
+- studentId.
+- action.
+- timestamp.
+- metadata.
+
+## examResultPolicies
+
+Jika diperlukan, gunakan konfigurasi yang terpisah.
+
+Sesuaikan struktur dengan schema proyek yang sudah ada.
+
+Gunakan Firestore indexes yang diperlukan.
+
+---
+
+# V. BACKEND API
+
+Implementasikan endpoint yang diperlukan.
+
+Sesuaikan dengan backend yang sudah ada.
+
+## Question Bank
+
+- GET /api/teacher/questions.
+- POST /api/teacher/questions.
+- GET /api/teacher/questions/:questionId.
+- PUT /api/teacher/questions/:questionId.
+- DELETE /api/teacher/questions/:questionId.
+- POST /api/teacher/questions/:questionId/duplicate.
+
+## Exam Builder
+
+- GET /api/teacher/exams.
+- POST /api/teacher/exams.
+- GET /api/teacher/exams/:examId.
+- PUT /api/teacher/exams/:examId.
+- POST /api/teacher/exams/:examId/questions.
+- DELETE /api/teacher/exams/:examId/questions/:questionId.
+- POST /api/teacher/exams/:examId/publish.
+- POST /api/teacher/exams/:examId/close.
+- POST /api/teacher/exams/:examId/archive.
+
+## Student Exam
+
+- POST /api/student/exam/enter.
+- POST /api/student/exam/start.
+- GET /api/student/exam/session.
+- GET /api/student/exam/session/:sessionId.
+- POST /api/student/exam/session/:sessionId/answer.
+- POST /api/student/exam/session/:sessionId/flag.
+- POST /api/student/exam/session/:sessionId/submit.
+- GET /api/student/exam/session/:sessionId/status.
+
+## Results
+
+- GET /api/teacher/exams/:examId/results.
+- GET /api/teacher/submissions/:submissionId.
+- POST /api/teacher/submissions/:submissionId/grade.
+- GET /api/student/results.
+
+Sesuaikan endpoint sesuai struktur backend.
+
+Jangan membuat endpoint yang tidak benar-benar diimplementasikan.
+
+---
+
+# W. SECURITY
+
+Keamanan ujian menjadi prioritas.
+
+Terapkan:
+
+- Firebase Authentication untuk guru.
+- Validasi role.
+- Validasi schoolId.
+- Validasi sesi siswa.
+- Validasi peserta.
+- Validasi jadwal.
+- Validasi deadline.
+- Rate limiting.
+- Input validation.
+- Error handling.
+- Audit log.
+- Idempotency.
+- Proteksi submission.
+- Proteksi kunci jawaban.
+- Proteksi hasil.
+- Proteksi sesi.
+- Proteksi endpoint.
+- Proteksi upload gambar.
+- Proteksi data siswa.
+
+Siswa tidak boleh:
+
+- Membaca kunci jawaban.
+- Mengubah nilai.
+- Mengubah deadline.
+- Mengubah XP.
+- Mengubah level.
+- Mengubah status submission.
+- Mengubah status ujian.
+- Membaca data siswa lain.
+- Mengakses ujian kelas lain.
+- Mengubah identitas peserta.
+- Membuat submission palsu.
+- Mengakses sesi siswa lain.
+
+Guru tidak boleh:
+
+- Mengakses data sekolah lain.
+- Mengakses hak admin tanpa role.
+- Mengubah data siswa di luar kewenangan.
+
+Admin dapat mengelola data sesuai role.
+
+Gunakan Firebase Admin SDK di backend.
+
+Ingat Admin SDK melewati Firestore Security Rules. Karena itu, backend harus melakukan pemeriksaan kewenangan.
+
+Jangan mempercayai data dari frontend.
+
+---
+
+# X. RESPONSIVE UI DAN PENGALAMAN ANAK
+
+Pertahankan desain PSAS ADVENTURE.
+
+Gunakan:
+
+- Kartun 2D.
+- Warna cerah.
+- Font yang mudah dibaca.
+- Tombol besar.
+- Navigasi sederhana.
+- Progress.
+- Animasi ringan.
+- Responsif.
+- Bahasa Indonesia sederhana.
+
+Halaman ujian harus lebih tenang daripada Base Camp.
+
+Jangan menggunakan animasi berlebihan ketika siswa mengerjakan.
+
+Jangan menggunakan timer dengan efek menakutkan.
+
+Jangan memberikan pesan yang membuat anak merasa gagal.
+
+Gunakan pesan seperti:
+
+- "Semangat, kamu pasti bisa!"
+- "Jawabanmu sudah tersimpan."
+- "Periksa kembali soal yang belum kamu jawab."
+- "Petualangan ujianmu telah selesai."
+
+Jangan mengumumkan nilai siswa kepada siswa lain.
+
+Jangan membuat leaderboard nilai.
+
+Pastikan aksesibilitas:
+
+- Kontras.
+- Font.
+- Keyboard.
+- Fokus.
+- Label.
+- Reduced motion.
+
+---
+
+# Y. PENGUJIAN
+
+Lakukan pengujian menyeluruh.
+
+## Question Bank
+
+- Membuat soal.
+- Mengedit soal.
+- Menghapus atau mengarsipkan soal.
+- Duplikasi.
+- Upload gambar.
+- Validasi.
+- Preview.
+- Kunci jawaban.
+
+## Exam Builder
+
+- Membuat asesmen.
+- Mengedit asesmen.
+- Menambah soal.
+- Menghapus soal.
+- Mengatur jadwal.
+- Mengatur durasi.
+- Mengatur kode.
+- Mengatur kelas.
+- Mengatur pengacakan.
+- Mengatur mode.
+
+## Student Exam
+
+- Login.
+- Validasi kode.
+- Validasi kelas.
+- Validasi peserta.
+- Memulai ujian.
+- Navigasi.
+- Jawaban.
+- Autosave.
+- Refresh.
+- Pemulihan sesi.
+- Timer.
+- Deadline.
+- Submission.
+
+## Scoring
+
+- Pilihan ganda.
+- Pilihan ganda kompleks.
+- Benar salah.
+- Isian.
+- Menjodohkan.
+- Uraian.
+- Bobot.
+- Normalisasi.
+- Penilaian manual.
+
+## Security
+
+- Kunci jawaban.
+- Data siswa.
+- Role.
+- Session.
+- Deadline.
+- XP.
+- Submission.
+- Rate limiting.
+- API.
+- Firebase Rules.
+
+## Adventure Integration
+
+- Progress dunia.
+- Checkpoint.
+- XP.
+- Badge.
+- Level.
+- Event.
+- Pencegahan XP ganda.
+
+## Responsivitas
+
+- HP.
+- Tablet.
+- Laptop.
+- Desktop.
+
+Jangan menandai PASS jika belum benar-benar diuji.
+
+Gunakan Firebase Emulator Suite jika memungkinkan.
+
+---
+
+# Z. DOKUMENTASI
+
+Perbarui:
+
+- FEATURE_STATUS.md.
+- CHANGELOG.md.
+- TEST_REPORT.md.
+- ROADMAP.md.
+- DATABASE_SCHEMA.md.
+- API_DOCUMENTATION.md.
+- SECURITY_NOTES.md.
+
+Buat dokumentasi tambahan:
+
+- ASSESSMENT_ENGINE.md.
+- QUESTION_BANK.md.
+- EXAM_SESSION.md.
+- SCORING_SYSTEM.md.
+
+Dokumentasi harus menjelaskan struktur sistem agar Stage 4 dapat melanjutkan tanpa membangun ulang.
+
+---
+
+# AA. LAPORAN AKHIR
+
+Setelah Stage 3 selesai, laporkan:
+
+1. Modul Question Bank.
+2. Editor soal.
+3. Exam Builder.
+4. Exam Preview.
+5. Exam Management.
+6. Student Exam Entry.
+7. Exam Session.
+8. Timer.
+9. Autosave.
+10. Submission Engine.
+11. Scoring Engine.
+12. Penilaian uraian.
+13. Adventure Integration.
+14. XP Integration.
+15. Badge Integration.
+16. Firestore Schema.
+17. API.
+18. Firebase Integration.
+19. Security.
+20. Hasil build.
+21. Hasil pengujian.
+22. Bug yang ditemukan.
+23. Bug yang diperbaiki.
+24. Bug yang belum diperbaiki.
+25. Fitur yang belum tersedia.
+26. Konfigurasi manual yang diperlukan.
+27. Rekomendasi Stage 4.
+
+Jangan menyatakan fitur sudah terhubung jika belum diuji.
+
+Jangan menyatakan fitur sudah selesai jika masih berupa placeholder.
+
+Jangan melanjutkan Stage 4 secara otomatis.
+
+---
+
+# TARGET AKHIR STAGE 3
+
+Guru dapat:
+
+- Membuat bank soal.
+- Mengelola soal.
+- Membuat asesmen.
+- Mengatur asesmen.
+- Memilih kelas.
+- Mengatur jadwal.
+- Mengatur durasi.
+- Mengatur kode ujian.
+- Mengatur mode ujian.
+- Mengatur pengacakan.
+- Mengatur bobot.
+- Melihat peserta.
+- Melihat progress.
+- Menilai uraian.
+- Melihat hasil.
+
+Siswa dapat:
+
+- Masuk ke ujian.
+- Memulai ujian.
+- Mengerjakan soal.
+- Menavigasi soal.
+- Menandai soal.
+- Menyimpan jawaban otomatis.
+- Memulihkan sesi.
+- Melihat timer.
+- Mengirim ujian.
+- Menyelesaikan ujian dengan aman.
+
+Sistem dapat:
+
+- Menghitung skor objektif.
+- Mengelola uraian.
+- Menyimpan hasil.
+- Menjaga kunci jawaban.
+- Menjaga data siswa.
+- Mengintegrasikan progress petualangan.
+- Memberikan XP sesuai aturan tervalidasi.
+- Memberikan lencana sesuai kriteria.
+- Mencegah pengiriman dan pemberian XP ganda.
+
+**JANGAN MEMBANGUN ULANG APLIKASI. JANGAN MERUSAK STAGE SEBELUMNYA. JANGAN DEPLOY TANPA PERSETUJUAN. JANGAN MELANJUTKAN STAGE 4 SEBELUM STAGE 3 DITINJAU.**

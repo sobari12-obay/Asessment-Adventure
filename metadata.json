@@ -1,0 +1,6 @@
+{
+  "name": "PSAS ADVENTURE — 10 Dunia Penjelajah Cilik",
+  "description": "Aplikasi asesmen digital petualangan interaktif Kelas 3 SD dengan 10 dunia mata pelajaran, sistem soal adaptif, autosave, dan dashboard guru terintegrasi Firebase.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
